@@ -5,3 +5,6 @@ gensim
 tensorflow
 scikit-learn
 seaborn
+transformers
+torch
+wordfreq
