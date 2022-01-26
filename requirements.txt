@@ -8,3 +8,4 @@ seaborn
 transformers
 torch
 wordfreq
+jupyter
