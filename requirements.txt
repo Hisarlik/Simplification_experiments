@@ -6,6 +6,7 @@ tensorflow
 scikit-learn
 seaborn
 transformers
+datasets
 torch
 wordfreq
 jupyter

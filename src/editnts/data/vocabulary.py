@@ -1,6 +1,6 @@
 import pickle
 import numpy as np
-from src.constants import PAD, UNK, KEEP, DEL, START, STOP, VOCAB_POS_TAGGING_PATH
+from src.editnts.constants import PAD, UNK, KEEP, DEL, START, STOP, VOCAB_POS_TAGGING_PATH
 from src.utils import logging_module
 
 logger = logging_module.get_logger(__name__)
@@ -14,7 +14,7 @@ class Vocab():
         self.embedding = None
 
     def add_vocab_from_file(self, vocab_file="../vocab_data/vocab.txt",vocab_size=30000):
-        with open(vocab_file, "r") as f:
+        with open(vocab_file, "r", encoding="utf8") as f:
             for i,line in enumerate(f):
                 if i >=vocab_size:
                     break

@@ -1,14 +1,14 @@
 from pathlib import Path
-from typing import Any, List, Tuple
+from typing import List
 
 import numpy as np
 import pandas as pd
 from nltk import pos_tag
 from pandas.core.frame import DataFrame
 
-from src.utils import storage, logging_module
-from src.data.vocab import POSvocab
-from src.constants import UNK,VOCAB_POS_TAGGING_PATH
+from src.utils import logging_module
+from src.editnts.data import storage, vocabulary
+from src.editnts.constants import UNK,VOCAB_POS_TAGGING_PATH, OUTPUT_PREPROCESSED_DATA,VOCAB_WORDS_PATH
 
 logger = logging_module.get_logger(__name__)
 
@@ -33,8 +33,51 @@ def preprocess_raw_data(
     logger.debug("pos tagging added")
     
     df = _add_edits(df)
-    logger.debug("edit operations field added")    
+    logger.debug("edit operations field added")
+
+    _editnet_data_to_editnetID(df)
+    logger.info("Add vocab columns to df and store it")
+
     return df
+
+def _editnet_data_to_editnetID(df: pd.DataFrame):
+    """
+    this function reads from df.columns=['comp_tokens', 'simp_tokens', 'edit_labels','comp_pos_tags','comp_pos_ids']
+    and add vocab ids for comp_tokens, simp_tokens, and edit_labels
+    :param df: df.columns=['comp_tokens', 'simp_tokens', 'edit_labels','comp_pos_tags','comp_pos_ids']
+    :param output_path: the path to store the df
+    :return: a dataframe with df.columns=['comp_tokens', 'simp_tokens', 'edit_labels',
+                                            'comp_ids','simp_id','edit_ids',
+                                            'comp_pos_tags','comp_pos_ids'])
+    """
+    out_list = []
+    vocab = vocabulary.Vocab()
+    vocab.add_vocab_from_file(VOCAB_WORDS_PATH, 30000)
+
+    def prepare_example(example, vocab):
+        """
+        :param example: one row in pandas dataframe with feild ['comp_tokens', 'simp_tokens', 'edit_labels']
+        :param vocab: vocab object for translation
+        :return: inp: original input sentence,
+        """
+        comp_id = np.array([vocab.w2i[i] if i in vocab.w2i.keys() else vocab.w2i[UNK] for i in example['comp_tokens']])
+        simp_id = np.array([vocab.w2i[i] if i in vocab.w2i.keys() else vocab.w2i[UNK] for i in example['simp_tokens']])
+        edit_id = np.array([vocab.w2i[i] if i in vocab.w2i.keys() else vocab.w2i[UNK] for i in example['edit_labels']])
+        return comp_id, simp_id, edit_id  # add a dimension for batch, batch_size =1
+
+    for i,example in df.iterrows():
+
+        comp_id, simp_id, edit_id = prepare_example(example,vocab)
+        ex=[example['comp_tokens'], comp_id,
+         example['simp_tokens'], simp_id,
+         example['edit_labels'], edit_id,
+         example['comp_pos_tags'],example['comp_pos_ids']
+         ]
+        out_list.append(ex)
+    outdf = pd.DataFrame(out_list, columns=['comp_tokens','comp_ids', 'simp_tokens','simp_ids',
+                                            'edit_labels','new_edit_ids','comp_pos_tags','comp_pos_ids'])
+
+    storage.store_df_2file(outdf, Path(OUTPUT_PREPROCESSED_DATA))
 
 
 def _tokenize(texts: List[str]) -> List[List[str]]:
@@ -46,7 +89,7 @@ def _add_pos(df: DataFrame) -> DataFrame:
     pos_sentences = [pos_tag(sent) for sent in src_sentences]
     df["comp_pos_tags"] = pos_sentences
 
-    pos_vocab = POSvocab(VOCAB_POS_TAGGING_PATH)
+    pos_vocab = vocabulary.POSvocab(VOCAB_POS_TAGGING_PATH)
     pos_ids_list = []
     for sent in pos_sentences:
         pos_ids = [
