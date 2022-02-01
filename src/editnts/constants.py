@@ -4,7 +4,7 @@ TRAIN_ORIGINAL_DATA_PATH = "resources/wikismall/PWKP_108016.tag.80.aner.ori.trai
 TRAIN_SIMPLE_DATA_PATH = "resources/wikismall/PWKP_108016.tag.80.aner.ori.train.dst"
 VOCAB_POS_TAGGING_PATH = "resources/editnts/postag_set.p"
 VOCAB_WORDS_PATH = "resources/editnts/vocab.txt"
-OUTPUT_PREPROCESSED_DATA = "models/editnts/preprocessed/preprocessed_df"
+OUTPUT_PREPROCESSED_DATA = "models/editnts/wikismall/preprocessed/preprocessed_df"
 
 
 PAD = 'PAD' #  This has a vocab id, which is used to represent out-of-vocabulary words [0]

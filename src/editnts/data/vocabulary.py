@@ -19,7 +19,7 @@ class Vocab():
                 if i >=vocab_size:
                     break
                 self.word_list.append(line.split()[0])  # only want the word, not the count
-        logger.info(f"read %d words from vocab file: {len(self.word_list)}")
+        logger.info(f"read words from vocab file: {len(self.word_list)}")
 
         for w in self.word_list:
             self.w2i[w] = self.count
@@ -28,7 +28,7 @@ class Vocab():
 
     def add_embedding(self, gloveFile="path_for_glove_embedding", embed_size=100):
         logger.info("Loading Glove embeddings")
-        with open(gloveFile, 'r') as f:
+        with open(gloveFile, 'r', encoding="utf8") as f:
             model = {}
             w_set = set(self.word_list)
             embedding_matrix = np.zeros(shape=(len(self.word_list), embed_size))
