@@ -4,25 +4,19 @@ import torch
 import collections
 import argparse
 from pathlib import Path
+from constants import DEVICE, TRAIN_ORIGINAL_DATA_PATH, TRAIN_SIMPLE_DATA_PATH
 from src.utils import logging_module
-from src.editnts import base
-from src.editnts.data import preprocess, vocabulary
-from src.editnts.constants import TRAIN_ORIGINAL_DATA_PATH,TRAIN_SIMPLE_DATA_PATH, DEVICE
-
+from src.models import editnts
+from src.data import vocabulary
+from src.data.preprocessing import editnts
 
 logger = logging_module.get_logger(__name__)
 
 
-def main_preprocess():
-    logger.info("Init editNTS preprocess")
-
-    df = preprocess.preprocess_raw_data(
-        Path(TRAIN_ORIGINAL_DATA_PATH), Path(TRAIN_SIMPLE_DATA_PATH)
-    )
 
 
 
-def main_training():
+def main():
     torch.manual_seed(233)
 
     parser = argparse.ArgumentParser()
@@ -48,7 +42,7 @@ def main_training():
     vocab = vocabulary.Vocab()
     vocab.add_vocab_from_file(args.vocab_path+'vocab.txt', args.vocab_size)
     vocab.add_embedding(gloveFile=args.vocab_path+'glove.6B.100d.txt')
-    pos_vocab = vocabulary.POSvocab(args.vocab_path+'postag_set.p')
+    pos_vocab = vocabulary.POSvocab(args.vocab_path + 'postag_set.p')
 
     hyperparams=collections.namedtuple(
         'hps',
@@ -71,9 +65,12 @@ def main_training():
     )
 
     logger.info('init editNTS model')
-    edit_net = base.EditNTS(hps).to(DEVICE)
+    edit_net = editnts.EditNTSModel(hps).to(DEVICE)
     edit_net()
 
 if __name__ == "__main__":
-    #main_preprocess()
-    main_training()
+
+    files_path = {"original_text_path": TRAIN_ORIGINAL_DATA_PATH, "simple_text_path": TRAIN_SIMPLE_DATA_PATH}
+
+    prepro = editnts.PreprocessingEditNTS(**files_path)
+    prepro.pipeline()

@@ -1,7 +1,22 @@
 import torch
 
 TRAIN_ORIGINAL_DATA_PATH = "resources/wikismall/PWKP_108016.tag.80.aner.ori.train.src"
+VALID_ORIGINAL_DATA_PATH = "resources/wikismall/PWKP_108016.tag.80.aner.ori.valid.src"
+TEST_ORIGINAL_DATA_PATH = "resources/wikismall/PWKP_108016.tag.80.aner.ori.test.src"
 TRAIN_SIMPLE_DATA_PATH = "resources/wikismall/PWKP_108016.tag.80.aner.ori.train.dst"
+VALID_SIMPLE_DATA_PATH = "resources/wikismall/PWKP_108016.tag.80.aner.ori.valid.dst"
+TEST_SIMPLE_DATA_PATH = "resources/wikismall/PWKP_108016.tag.80.aner.ori.test.dst"
+
+
+
+##### PEGASUS ########################
+MODEL_CKPT = "google/pegasus-cnn_dailymail"
+
+
+
+
+
+####### EditNTS #########################
 VOCAB_POS_TAGGING_PATH = "resources/editnts/postag_set.p"
 VOCAB_WORDS_PATH = "resources/editnts/vocab.txt"
 OUTPUT_PREPROCESSED_DATA = "models/editnts/wikismall/preprocessed/preprocessed_df"
