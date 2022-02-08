@@ -36,4 +36,5 @@ DEL_ID = 3 # This has a vocab id, which is used for deleting the corresponding w
 START_ID = 4 # this has a vocab id, which is uded for indicating start of the sentence for decoding [4]
 STOP_ID = 5 # This has a vocab id, which is used to stop decoding [5]
 
-DEVICE = "cuda" if torch.cuda.is_available() else "cpu"
+#DEVICE = "cuda" if torch.cuda.is_available() else "cpu"
+DEVICE = "cpu"

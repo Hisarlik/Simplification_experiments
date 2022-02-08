@@ -1,4 +1,6 @@
-from src.data.preprocessing import pegasus_sum
+from src.data.preprocessing import pegasus_pre
+from src.models import pegasus_sum
+import torch
 from constants import TRAIN_ORIGINAL_DATA_PATH, \
                       VALID_ORIGINAL_DATA_PATH, \
                       TEST_ORIGINAL_DATA_PATH,  \
@@ -6,6 +8,8 @@ from constants import TRAIN_ORIGINAL_DATA_PATH, \
                       VALID_SIMPLE_DATA_PATH,   \
                       TEST_SIMPLE_DATA_PATH,    \
                       MODEL_CKPT
+
+
 
 if __name__ == "__main__":
 
@@ -19,6 +23,8 @@ if __name__ == "__main__":
                   "model_ckpt": MODEL_CKPT
                   }
 
-    pegasus = pegasus_sum.PreprocessingPegasus(**files_path)
+    pegasus = pegasus_pre.PreprocessingPegasus(**files_path)
     tokens = pegasus.pipeline()
     print(tokens)
+    model = pegasus_sum.PegasusSumModel(pegasus.tokenizer)
+    model.train(**tokens)

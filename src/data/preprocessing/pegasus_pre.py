@@ -10,22 +10,23 @@ class PreprocessingPegasus(PreprocessingBase):
 
         self.type_dataset = HuggingFaceDataset(kwargs)
         self.dataset = None
+
         model_ckpt = kwargs.get('model_ckpt')
         if model_ckpt:
             self.tokenizer = AutoTokenizer.from_pretrained(model_ckpt)
 
     def pipeline(self):
-        self.load_data()
-        dataset_tokenized = self.tokenize()
+        dataset = self.load_data()
+        dataset_tokenized = self.tokenize(dataset)
         return dataset_tokenized
 
     def load_data(self, **kwargs):
-        self.dataset = self.type_dataset.load()
+        return self.type_dataset.load()
 
 
-    def tokenize(self):
+    def tokenize(self, dataset):
 
-        dataset_samsum_pt = self.dataset.map(self._tokenize_batch,
+        dataset_samsum_pt = dataset.map(self._tokenize_batch,
                                                batched=True)
         columns = ["input_ids", "labels", "attention_mask"]
         dataset_samsum_pt.set_format(type="torch", columns=columns)

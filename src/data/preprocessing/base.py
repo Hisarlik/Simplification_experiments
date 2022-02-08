@@ -16,7 +16,7 @@ class PreprocessingBase(ABC):
     #     pass
 
     @abstractmethod
-    def tokenize(self):
+    def tokenize(self, dataset):
         pass
 
     # @abstractmethod
