@@ -4,7 +4,7 @@ import torch
 import collections
 import argparse
 from pathlib import Path
-from constants import DEVICE, TRAIN_ORIGINAL_DATA_PATH, TRAIN_SIMPLE_DATA_PATH
+from constants import DEVICE, WIKISMALL_TRAIN_ORIGINAL_DATA_PATH, WIKISMALL_TRAIN_SIMPLE_DATA_PATH
 from src.utils import logging_module
 from src.models import editnts
 from src.data import vocabulary
@@ -70,7 +70,8 @@ def main():
 
 if __name__ == "__main__":
 
-    files_path = {"original_text_path": TRAIN_ORIGINAL_DATA_PATH, "simple_text_path": TRAIN_SIMPLE_DATA_PATH}
+    files_path = {"original_text_path": WIKISMALL_TRAIN_ORIGINAL_DATA_PATH,
+                  "simple_text_path": WIKISMALL_TRAIN_SIMPLE_DATA_PATH}
 
     prepro = editnts.PreprocessingEditNTS(**files_path)
-    prepro.pipeline()
+    prepro.preprocess()

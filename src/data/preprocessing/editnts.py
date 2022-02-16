@@ -24,7 +24,7 @@ class PreprocessingEditNTS(PreprocessingBase):
 
 
 
-    def pipeline(self):
+    def preprocess(self):
 
         original_txts, simple_txts = self.load_data()
         df = pd.DataFrame(
