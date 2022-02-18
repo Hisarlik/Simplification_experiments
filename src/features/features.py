@@ -33,6 +33,12 @@ class Feature(FeatureAbstract):
     def __init__(self, ratio):
         self.ratio = ratio
 
+    def calculate_ratio(self, kwargs, target_ratio):
+        if not 'original_text_preprocessed' in kwargs:
+            kwargs['original_text_preprocessed'] = ""
+
+        return kwargs
+
     @property
     def name(self):
         class_name = self.__class__.__name__
@@ -51,14 +57,13 @@ class WordLengthRatio(Feature):
 
     def calculate_ratio(self, kwargs, target_ratio):
 
-        if not 'features' in kwargs:
-            kwargs['features'] = ""
+        kwargs = super().calculate_ratio(kwargs, target_ratio)
 
         result_ratio  = round(ControlDivisionByZero(
                                             len(self.tokenizer.tokenize(kwargs.get('simple_text'))),
                                             len(self.tokenizer.tokenize(kwargs.get('original_text')))), 2)
 
-        kwargs['features'] += f'{self.name}_{result_ratio} '
+        kwargs['original_text_preprocessed'] += f'{self.name}_{result_ratio} '
         return kwargs
 
 
@@ -71,14 +76,13 @@ class CharLengthRatio(Feature):
 
     def calculate_ratio(self, kwargs, target_ratio):
 
-        if not 'features' in kwargs:
-            kwargs['features'] = ""
+        kwargs = super().calculate_ratio(kwargs, target_ratio)
 
         result_ratio = round(ControlDivisionByZero(
                                             len(kwargs.get('simple_text')),
                                             len(kwargs.get('original_text'))), 2)
 
-        kwargs['features'] += f'{self.name}_{result_ratio} '
+        kwargs['original_text_preprocessed'] += f'{self.name}_{result_ratio} '
         return kwargs
 
 
@@ -90,13 +94,12 @@ class LevenshteinRatio(Feature):
 
     def calculate_ratio(self, kwargs, target_ratio):
 
-        if not 'features' in kwargs:
-            kwargs['features'] = ""
+        kwargs = super().calculate_ratio(kwargs, target_ratio)
 
         result_ratio = round(Levenshtein.ratio(kwargs.get('original_text'),
                                                kwargs.get('simple_text')), 2)
 
-        kwargs['features'] += f'{self.name}_{result_ratio} '
+        kwargs['original_text_preprocessed'] += f'{self.name}_{result_ratio} '
         return kwargs
 
 
@@ -119,14 +122,13 @@ class DependencyTreeDepthRatio(Feature):
 
     def calculate_ratio(self, kwargs, target_ratio):
 
-        if not 'features' in kwargs:
-            kwargs['features'] = ""
+        kwargs = super().calculate_ratio(kwargs, target_ratio)
 
         result_ratio = round(ControlDivisionByZero(
                                 self.get_dependency_tree_depth(kwargs.get('simple_text')),
                                 self.get_dependency_tree_depth(kwargs.get('original_text'))),2)
 
-        kwargs['features'] += f'{self.name}_{result_ratio} '
+        kwargs['original_text_preprocessed'] += f'{self.name}_{result_ratio} '
         return kwargs
 
     def get_dependency_tree_depth(self, sentence):
@@ -154,14 +156,18 @@ class WordRankRatio(Feature):
 
     def calculate_ratio(self, kwargs, target_ratio):
 
-        return round(min(ControlDivisionByZero(self._get_lexical_complexity_score(kwargs.get('simple_text')),
+        kwargs = super().calculate_ratio(kwargs, target_ratio)
+
+        result_ratio = round(min(ControlDivisionByZero(self._get_lexical_complexity_score(kwargs.get('simple_text')),
                                                self._get_lexical_complexity_score(kwargs.get('original_text'))), 2), 2)
+
+        kwargs['original_text_preprocessed'] += f'{self.name}_{result_ratio} '
+        return kwargs
 
 
     def _get_lexical_complexity_score(self, sentence):
-        words = self.tokenizer.tokenize(self._remove_stopwords(self._remove_punctuation(sentence)))
 
-        print(words)
+        words = self.tokenizer.tokenize(self._remove_stopwords(self._remove_punctuation(sentence)))
         words = [word for word in words if word in self.word2rank]
         if len(words) == 0:
             return np.log(1 + self.length_rank)
@@ -267,3 +273,21 @@ class WordRankRatio(Feature):
             last_b[0] = b
 
         return inner
+
+
+
+if __name__ == "__main__":
+
+    tokenizer = MosesTokenizer(lang='en')
+
+    simple_text = "Hello my name is"
+    complex_text = "Hello my name is Antonio Hello my name is Antonio"
+
+
+    result_ratio = round(ControlDivisionByZero(
+        len(tokenizer.tokenize(simple_text)),
+        len(tokenizer.tokenize(complex_text))), 2)
+
+
+    print(result_ratio)
+

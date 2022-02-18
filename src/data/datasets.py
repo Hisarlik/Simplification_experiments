@@ -1,3 +1,5 @@
+from pathlib import Path
+
 from datasets import Dataset, DatasetDict
 import pandas as pd
 
@@ -31,3 +33,12 @@ class HuggingFaceDataset():
         })
 
         return train_test_valid_dataset
+
+
+    def save(self, dataset: Dataset, path: Path):
+        path.mkdir(exist_ok=True)
+        dataset.save_to_disk(str(path))
+
+
+
+
