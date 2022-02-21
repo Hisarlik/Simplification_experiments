@@ -12,6 +12,7 @@ rouge_score
 torch==1.10.1+cu113
 torchvision==0.11.2+cu113
 torchaudio===0.10.1+cu113
+pytorch-lightning
 wordfreq
 jupyter
 py7zr

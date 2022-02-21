@@ -5,7 +5,9 @@ from pathlib import Path
 RESOURCES_DIR = Path(__file__).resolve().parent / "resources"
 DUMPS_DIR = RESOURCES_DIR / "DUMPS"
 PREPROCESSED_DIR = RESOURCES_DIR / "preprocessed"
+OUTPUT_DIR = RESOURCES_DIR / "experiments"
 WORD_EMBEDDINGS_NAME = "glove.42B.300d"
+
 
 ##### WIKISMALL #####
 WIKISMALL_DATASET = RESOURCES_DIR / "wikismall"

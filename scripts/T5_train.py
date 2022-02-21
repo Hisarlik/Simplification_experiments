@@ -6,13 +6,14 @@ sys.path.append(str(Path(__file__).resolve().parent.parent))
 import torch
 from src.utils import logging_module
 from src.data.preprocessing.t5_pre import T5_Preprocessing
+from src.models.t5_simplification import TrainerT5
 from constants import WIKILARGE_CHUNK_TRAIN_ORIGINAL_DATA_PATH, \
     WIKILARGE_CHUNK_VALID_ORIGINAL_DATA_PATH, \
     WIKILARGE_CHUNK_TEST_ORIGINAL_DATA_PATH, \
     WIKILARGE_CHUNK_TRAIN_SIMPLE_DATA_PATH, \
     WIKILARGE_CHUNK_VALID_SIMPLE_DATA_PATH, \
     WIKILARGE_CHUNK_TEST_SIMPLE_DATA_PATH, \
-    MODEL_CKPT, PREPROCESSED_DIR
+    MODEL_CKPT, PREPROCESSED_DIR, OUTPUT_DIR, DEVICE
 
 
 logger = logging_module.get_logger(__name__)
@@ -42,6 +43,8 @@ if __name__ == "__main__":
         nb_sanity_val_steps=0,
         train_sample_size=1,  # 1 = 100%, 0.5 = 50%
         valid_sample_size=1,
+        output_dir=OUTPUT_DIR,
+        device=DEVICE
     )
 
 
@@ -70,6 +73,7 @@ if __name__ == "__main__":
                 "preprocessed_data_path": PREPROCESSED_DIR / "wikilarge_chunk"
     }
 
-    pegasus_pre = T5_Preprocessing(**conf)
-    dataset_df = pegasus_pre.preprocess()
-    print(dataset_df)
+    t5_pre = T5_Preprocessing(**conf)
+    #dataset_df = t5_pre.preprocess()
+    #print(dataset_df)
+    trainer = TrainerT5(conf["model_hyperparameters"])
