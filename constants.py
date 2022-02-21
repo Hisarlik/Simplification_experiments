@@ -35,9 +35,9 @@ MODEL_CKPT = "google/pegasus-cnn_dailymail"
 
 
 ####### EditNTS #########################
-VOCAB_POS_TAGGING_PATH = RESOURCES_DIR / "resources/editnts/postag_set.p"
-VOCAB_WORDS_PATH = RESOURCES_DIR / "resources/editnts/vocab.txt"
-OUTPUT_PREPROCESSED_DATA = RESOURCES_DIR / "models/editnts/wikismall/preprocessed/preprocessed_df"
+VOCAB_POS_TAGGING_PATH = RESOURCES_DIR / "editnts/postag_set.p"
+VOCAB_WORDS_PATH = RESOURCES_DIR / "editnts/vocab.txt"
+OUTPUT_PREPROCESSED_DATA = RESOURCES_DIR / "editnts/wikismall/preprocessed/preprocessed_df"
 
 
 PAD = 'PAD' #  This has a vocab id, which is used to represent out-of-vocabulary words [0]
