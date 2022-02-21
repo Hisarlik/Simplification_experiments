@@ -34,7 +34,7 @@ class T5_Preprocessing(PreprocessingBase):
 
         for feature, kwargs in self.features.items():
             logger.info(f"Calculating feature: {feature}")
-            dataset = dataset.map(getattr(features, feature)().calculate_ratio,
+            dataset = dataset.map(getattr(features, feature)().get_ratio,
                                   fn_kwargs=kwargs)
             logger.info(f"Feature: {feature} calculated.")
 

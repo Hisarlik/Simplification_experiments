@@ -24,7 +24,7 @@ def ControlDivisionByZero(numerator, denominator):
 class FeatureAbstract(ABC):
 
     @abstractmethod
-    def calculate_ratio(self, kwargs, target_ratio):
+    def get_ratio(self, kwargs, target_ratio):
         pass
 
 
@@ -33,7 +33,7 @@ class Feature(FeatureAbstract):
     def __init__(self, ratio):
         self.ratio = ratio
 
-    def calculate_ratio(self, kwargs, target_ratio):
+    def get_ratio(self, kwargs, target_ratio):
         if not 'original_text_preprocessed' in kwargs:
             kwargs['original_text_preprocessed'] = ""
 
@@ -55,16 +55,24 @@ class WordLengthRatio(Feature):
         self.tokenizer = MosesTokenizer(lang='en')
         self.ratio = ratio
 
-    def calculate_ratio(self, kwargs, target_ratio):
+    def get_ratio(self, kwargs, target_ratio):
 
-        kwargs = super().calculate_ratio(kwargs, target_ratio)
+        kwargs = super().get_ratio(kwargs, target_ratio)
 
-        result_ratio  = round(ControlDivisionByZero(
-                                            len(self.tokenizer.tokenize(kwargs.get('simple_text'))),
-                                            len(self.tokenizer.tokenize(kwargs.get('original_text')))), 2)
+        simple_text = kwargs.get('simple_text')
+        original_text = kwargs.get('original_text')
+
+        result_ratio = self.calculate_ratio(simple_text, original_text)
 
         kwargs['original_text_preprocessed'] += f'{self.name}_{result_ratio} '
         return kwargs
+
+    def calculate_ratio(self, simple_text, original_text):
+
+        return round(ControlDivisionByZero(
+                                            len(self.tokenizer.tokenize(simple_text)),
+                                            len(self.tokenizer.tokenize(original_text))), 2)
+
 
 
 
@@ -74,16 +82,26 @@ class CharLengthRatio(Feature):
         super().__init__(ratio)
         self.ratio = ratio
 
-    def calculate_ratio(self, kwargs, target_ratio):
+    def get_ratio(self, kwargs, target_ratio):
 
-        kwargs = super().calculate_ratio(kwargs, target_ratio)
+        kwargs = super().get_ratio(kwargs, target_ratio)
 
-        result_ratio = round(ControlDivisionByZero(
-                                            len(kwargs.get('simple_text')),
-                                            len(kwargs.get('original_text'))), 2)
+        simple_text = kwargs.get('simple_text')
+        original_text = kwargs.get('original_text')
+
+        result_ratio = self.calculate_ratio(simple_text, original_text)
 
         kwargs['original_text_preprocessed'] += f'{self.name}_{result_ratio} '
         return kwargs
+
+    def calculate_ratio(self, simple_text, original_text):
+
+        print(simple_text)
+        print(original_text)
+
+        return round(ControlDivisionByZero(
+                                            len(simple_text),
+                                            len(original_text)), 2)
 
 
 class LevenshteinRatio(Feature):
@@ -92,15 +110,24 @@ class LevenshteinRatio(Feature):
         super().__init__(ratio)
         self.ratio = ratio
 
-    def calculate_ratio(self, kwargs, target_ratio):
+    def get_ratio(self, kwargs, target_ratio):
 
-        kwargs = super().calculate_ratio(kwargs, target_ratio)
+        kwargs = super().get_ratio(kwargs, target_ratio)
 
-        result_ratio = round(Levenshtein.ratio(kwargs.get('original_text'),
-                                               kwargs.get('simple_text')), 2)
+        simple_text = kwargs.get('simple_text')
+        original_text = kwargs.get('original_text')
+
+        result_ratio = self.calculate_ratio(simple_text, original_text)
 
         kwargs['original_text_preprocessed'] += f'{self.name}_{result_ratio} '
         return kwargs
+
+    def calculate_ratio(self, simple_text, original_text):
+
+        return round(Levenshtein.ratio(original_text,
+                                simple_text), 2)
+
+
 
 
 
@@ -120,9 +147,9 @@ class DependencyTreeDepthRatio(Feature):
             spacy.cli.link(model, model, force=True, model_path=spacy.util.get_package_path(model))
         return spacy.load(model)
 
-    def calculate_ratio(self, kwargs, target_ratio):
+    def get_ratio(self, kwargs, target_ratio):
 
-        kwargs = super().calculate_ratio(kwargs, target_ratio)
+        kwargs = super().get_ratio(kwargs, target_ratio)
 
         result_ratio = round(ControlDivisionByZero(
                                 self.get_dependency_tree_depth(kwargs.get('simple_text')),
@@ -154,18 +181,18 @@ class WordRankRatio(Feature):
         self.ratio = ratio
 
 
-    def calculate_ratio(self, kwargs, target_ratio):
+    def get_ratio(self, kwargs, target_ratio):
 
-        kwargs = super().calculate_ratio(kwargs, target_ratio)
+        kwargs = super().get_ratio(kwargs, target_ratio)
 
-        result_ratio = round(min(ControlDivisionByZero(self._get_lexical_complexity_score(kwargs.get('simple_text')),
-                                               self._get_lexical_complexity_score(kwargs.get('original_text'))), 2), 2)
+        result_ratio = round(min(ControlDivisionByZero(self.get_lexical_complexity_score(kwargs.get('simple_text')),
+                                               self.get_lexical_complexity_score(kwargs.get('original_text'))), 2), 2)
 
         kwargs['original_text_preprocessed'] += f'{self.name}_{result_ratio} '
         return kwargs
 
 
-    def _get_lexical_complexity_score(self, sentence):
+    def get_lexical_complexity_score(self, sentence):
 
         words = self.tokenizer.tokenize(self._remove_stopwords(self._remove_punctuation(sentence)))
         words = [word for word in words if word in self.word2rank]
@@ -189,7 +216,9 @@ class WordRankRatio(Feature):
     def _get_word2rank(self, vocab_size=np.inf):
         model_filepath = DUMPS_DIR / f"{WORD_EMBEDDINGS_NAME}.pk"
         if model_filepath.exists():
-            return pickle.load(open(model_filepath, 'rb'))
+            with open(model_filepath, 'rb') as f:
+                model = pickle.load(f)
+            return model
         else:
             print("Downloading glove.42B.300d ...")
             self._download_glove(model_name='glove.42B.300d', dest_dir=str(DUMPS_DIR))
