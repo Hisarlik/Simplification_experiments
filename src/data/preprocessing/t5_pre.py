@@ -42,8 +42,8 @@ class T5_Preprocessing(PreprocessingBase):
                                                                                  example['original_text']})
         print(dataset["train"][0])
         self.save_data(dataset)
-        dataset = dataset["train"].to_pandas()
-        return dataset
+        #dataset = dataset["train"].to_pandas()
+        #return dataset
 
     def load_data(self, **kwargs):
         return self.type_dataset.load()
@@ -53,6 +53,9 @@ class T5_Preprocessing(PreprocessingBase):
         self.type_dataset.save(dataset,
                                Path(self.kwargs.get("preprocessed_data_path")))
 
+    def load_from_disk(self, path):
+        return self.type_dataset.load_from_disk(path)
+
     def tokenize(self, dataset: Dataset):
         dataset_samsum_pt = dataset.map(self._tokenize_batch,
                                         batched=True)
@@ -61,12 +64,12 @@ class T5_Preprocessing(PreprocessingBase):
         return dataset_samsum_pt
 
     def _tokenize_batch(self, batch):
-        input_encodings = self.tokenizer(batch["original_text"], max_length=1024,
-                                         truncation=True)
+        input_encodings = self.tokenizer(batch["original_text"], max_length=32,
+                                         truncation=True, padding="max_length")
 
         with self.tokenizer.as_target_tokenizer():
-            target_encodings = self.tokenizer(batch["simple_text"], max_length=128,
-                                              truncation=True)
+            target_encodings = self.tokenizer(batch["simple_text"], max_length=32,
+                                              truncation=True, padding="max_length")
 
         return {"input_ids": input_encodings["input_ids"],
                 "attention_mask": input_encodings["attention_mask"],

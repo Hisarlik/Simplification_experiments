@@ -34,14 +34,12 @@ if __name__ == "__main__":
         custom_loss=False,
         gradient_accumulation_steps=1,  # 16
         n_gpu=torch.cuda.device_count(),
-        # early_stop_callback=False,
-        fp_16=False,  # if you want to enable 16-bit training then install apex and set this to true
+        fp_16=False,
         opt_level='O1',
-        # you can find out more on optimisation levels here https://nvidia.github.io/apex/amp.html#opt-levels-and-properties
-        max_grad_norm=1.0,  # if you enable 16-bit training then set this to a sensible value, 0.5 is a good default
+        max_grad_norm=1.0,
         seed=12,
         nb_sanity_val_steps=0,
-        train_sample_size=1,  # 1 = 100%, 0.5 = 50%
+        train_sample_size=1,
         valid_sample_size=1,
         output_dir=OUTPUT_DIR,
         device=DEVICE
@@ -74,6 +72,6 @@ if __name__ == "__main__":
     }
 
     t5_pre = T5_Preprocessing(**conf)
-    #dataset_df = t5_pre.preprocess()
-    #print(dataset_df)
-    trainer = TrainerT5(conf["model_hyperparameters"])
+    #t5_pre.preprocess()
+    trainer = TrainerT5(t5_pre, conf['model_hyperparameters'])
+    trainer.train()

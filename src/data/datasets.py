@@ -40,5 +40,10 @@ class HuggingFaceDataset():
         dataset.save_to_disk(str(path))
 
 
+    def load_from_disk(self, path):
+        return DatasetDict.load_from_disk(path)
+
+
+
 
 
