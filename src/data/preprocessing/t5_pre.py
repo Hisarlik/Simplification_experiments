@@ -64,11 +64,11 @@ class T5_Preprocessing(PreprocessingBase):
         return dataset_samsum_pt
 
     def _tokenize_batch(self, batch):
-        input_encodings = self.tokenizer(batch["original_text"], max_length=self.kwargs.get('max_sequence_length'),
+        input_encodings = self.tokenizer(batch["original_text"], max_length=256,
                                          truncation=True, padding="max_length")
 
         with self.tokenizer.as_target_tokenizer():
-            target_encodings = self.tokenizer(batch["simple_text"], max_length=self.kwargs.get('max_sequence_length'),
+            target_encodings = self.tokenizer(batch["simple_text"], max_length=256,
                                               truncation=True, padding="max_length")
 
         return {"input_ids": input_encodings["input_ids"],

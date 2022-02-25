@@ -88,7 +88,7 @@ class T5SimplificationModel(pl.LightningModule):
         outputs = self.model(
             input_ids,
             attention_mask=attention_mask,
-            #decoder_input_ids=labels,
+            decoder_input_ids=decoder_input_ids,
             decoder_attention_mask=decoder_attention_mask,
             labels=labels
         )
@@ -99,9 +99,10 @@ class T5SimplificationModel(pl.LightningModule):
 
     def training_step(self, batch, batch_idx):
         labels = batch["labels"]
+        # Huggingface’s loss functions are defined to exclude the ID -100 during loss calculations. Therefore, we need to convert all padding token IDs in labels to -100.
         labels[labels[:, :] == self.tokenizer.pad_token_id] = -100
-        self.opt.zero_grad()
 
+        self.opt.zero_grad()
         outputs = self(
             input_ids=batch["input_ids"],
             attention_mask=batch["attention_mask"],

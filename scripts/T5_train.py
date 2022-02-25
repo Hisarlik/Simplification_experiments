@@ -22,7 +22,7 @@ if __name__ == "__main__":
 
 
     model_hyperparameters = dict(
-        model_name='t5-base',
+        model_name='t5-small',
         learning_rate=3e-4,
         weight_decay=0.1,
         adam_epsilon=1e-8,
