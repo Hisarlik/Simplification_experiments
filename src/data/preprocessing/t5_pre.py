@@ -59,18 +59,20 @@ class T5_Preprocessing(PreprocessingBase):
     def tokenize(self, dataset: Dataset):
         dataset_samsum_pt = dataset.map(self._tokenize_batch,
                                         batched=True)
-        columns = ["input_ids", "labels", "attention_mask"]
+        columns = ["input_ids", "labels", "attention_mask", "target_mask"]
         dataset_samsum_pt.set_format(type="torch", columns=columns)
         return dataset_samsum_pt
 
     def _tokenize_batch(self, batch):
-        input_encodings = self.tokenizer(batch["original_text"], max_length=32,
+        input_encodings = self.tokenizer(batch["original_text"], max_length=self.kwargs.get('max_sequence_length'),
                                          truncation=True, padding="max_length")
 
         with self.tokenizer.as_target_tokenizer():
-            target_encodings = self.tokenizer(batch["simple_text"], max_length=32,
+            target_encodings = self.tokenizer(batch["simple_text"], max_length=self.kwargs.get('max_sequence_length'),
                                               truncation=True, padding="max_length")
 
         return {"input_ids": input_encodings["input_ids"],
                 "attention_mask": input_encodings["attention_mask"],
-                "labels": target_encodings["input_ids"]}
+                "labels": target_encodings["input_ids"],
+                "target_mask": target_encodings["attention_mask"]}
+

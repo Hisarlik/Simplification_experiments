@@ -51,6 +51,7 @@ class TrainerT5(object):
             save_top_k=5
         )
         train_params = dict(
+            accelerator="cpu",
             accumulate_grad_batches=args.get('gradient_accumulation_steps'),
             gpus=args.get('n_gpu'),
             max_epochs=args.get('num_train_epochs'),
@@ -87,7 +88,7 @@ class T5SimplificationModel(pl.LightningModule):
         outputs = self.model(
             input_ids,
             attention_mask=attention_mask,
-            decoder_input_ids=decoder_input_ids,
+            #decoder_input_ids=labels,
             decoder_attention_mask=decoder_attention_mask,
             labels=labels
         )
@@ -97,7 +98,19 @@ class T5SimplificationModel(pl.LightningModule):
         pass
 
     def training_step(self, batch, batch_idx):
-        pass
+        labels = batch["labels"]
+        labels[labels[:, :] == self.tokenizer.pad_token_id] = -100
+        self.opt.zero_grad()
+
+        outputs = self(
+            input_ids=batch["input_ids"],
+            attention_mask=batch["attention_mask"],
+            labels=labels,
+            decoder_attention_mask=batch['target_mask'],
+        )
+        loss = outputs.loss
+        self.log('train_loss', loss, on_step=True, prog_bar=True, logger=True)
+        return loss
 
     def validation_step(self, batch, batch_idx):
         pass
@@ -147,27 +160,6 @@ class T5SimplificationModel(pl.LightningModule):
         pass
 
 
-class TrainDataset(Dataset):
 
-    def __init__(self, dataset, tokenizer, max_len=256, sample_size=1):
-        pass
-
-    def __len__(self):
-        pass
-
-    def __getitem__(self, index):
-        pass
-
-
-class ValDataset(Dataset):
-
-    def __init__(self, dataset, tokenizer, max_len=256, sample_size=1):
-        pass
-
-    def __len__(self):
-        pass
-
-    def __getitem__(self, index):
-        pass
 
 

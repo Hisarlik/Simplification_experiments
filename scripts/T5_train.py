@@ -23,7 +23,6 @@ if __name__ == "__main__":
 
     model_hyperparameters = dict(
         model_name='t5-base',
-        max_seq_length=256,
         learning_rate=3e-4,
         weight_decay=0.1,
         adam_epsilon=1e-8,
@@ -68,10 +67,11 @@ if __name__ == "__main__":
                 "type_dataset": "huggingface",
                 "files_path": files_path,
                 "features": features,
-                "preprocessed_data_path": PREPROCESSED_DIR / "wikilarge_chunk"
+                "preprocessed_data_path": PREPROCESSED_DIR / "wikilarge_chunk",
+                "max_seq_length" : 32,
     }
 
     t5_pre = T5_Preprocessing(**conf)
     #t5_pre.preprocess()
-    trainer = TrainerT5(t5_pre, conf['model_hyperparameters'])
+    trainer = TrainerT5(t5_pre, model_hyperparameters)
     trainer.train()

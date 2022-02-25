@@ -59,4 +59,5 @@ STOP_ID = 5 # This has a vocab id, which is used to stop decoding [5]
 
 
 ##### DEVICE #####
-DEVICE = "cuda" if torch.cuda.is_available() else "cpu"
+#DEVICE = "cuda" if torch.cuda.is_available() else "cpu"
+DEVICE = "cpu"
