@@ -43,15 +43,25 @@ class FeatureAbstract(ABC):
 
 class Feature(FeatureAbstract):
 
-    def __init__(self):
-        pass
+    def __init__(self, split, target_ratio):
+        self.split = split
+        self.target_ratio = target_ratio
 
     def get_ratio(self, kwargs):
+        if not 'original_text_preprocessed' in kwargs:
+            kwargs['original_text_preprocessed'] = ""
 
-        simple_text = kwargs.get('simple_text')
-        original_text = kwargs.get('original_text')
-        result_ratio = self.calculate_ratio(simple_text, original_text)
-        kwargs[self.name] = result_ratio
+        if self.split == "train":
+            simple_text = kwargs.get('simple_text')
+            original_text = kwargs.get('original_text')
+            result_ratio = self.calculate_ratio(simple_text, original_text)
+            kwargs[self.name] = result_ratio
+
+        elif self.split == "valid" or self.split == "test":
+            result_ratio = self.target_ratio
+        else:
+            raise ValueError("stage value not supported")
+        kwargs['original_text_preprocessed'] += f'{self.name}_{result_ratio} '
         return kwargs
 
     @property
@@ -66,9 +76,10 @@ class Feature(FeatureAbstract):
 
 class WordLengthRatio(Feature):
 
-    def __init__(self):
-        super().__init__()
-        self.tokenizer = MosesTokenizer(lang='en')
+    def __init__(self, stage="train", target_ratio=0.7):
+        super().__init__(stage, target_ratio)
+        if stage == "train":
+            self.tokenizer = MosesTokenizer(lang='en')
 
     def calculate_ratio(self, simple_text, original_text):
         return round(ControlDivisionByZero(
@@ -78,8 +89,8 @@ class WordLengthRatio(Feature):
 
 class CharLengthRatio(Feature):
 
-    def __init__(self):
-        super().__init__()
+    def __init__(self, stage="train", target_ratio=0.7):
+        super().__init__(stage, target_ratio)
 
     def calculate_ratio(self, simple_text, original_text):
         return round(ControlDivisionByZero(
@@ -89,8 +100,8 @@ class CharLengthRatio(Feature):
 
 class LevenshteinRatio(Feature):
 
-    def __init__(self):
-        super().__init__()
+    def __init__(self, stage="train", target_ratio=0.7):
+        super().__init__(stage, target_ratio)
 
     def calculate_ratio(self, simple_text, original_text):
         return round(Levenshtein.ratio(original_text,
@@ -99,9 +110,10 @@ class LevenshteinRatio(Feature):
 
 class DependencyTreeDepthRatio(Feature):
 
-    def __init__(self):
-        super().__init__()
-        self.nlp = self.get_spacy_model()
+    def __init__(self, stage="train", target_ratio=0.7):
+        super().__init__(stage, target_ratio)
+        if stage == "train":
+            self.nlp = self.get_spacy_model()
 
     def get_spacy_model(self):
 
@@ -134,11 +146,12 @@ class DependencyTreeDepthRatio(Feature):
 
 class WordRankRatio(Feature):
 
-    def __init__(self):
-        super().__init__()
-        self.tokenizer = MosesTokenizer(lang='en')
-        self.word2rank = self._get_word2rank()
-        self.length_rank = len(self.word2rank)
+    def __init__(self, stage="train", target_ratio=0.7):
+        super().__init__(stage, target_ratio)
+        if stage == "train":
+            self.tokenizer = MosesTokenizer(lang='en')
+            self.word2rank = self._get_word2rank()
+            self.length_rank = len(self.word2rank)
 
     def calculate_ratio(self, simple_text, original_text):
 
@@ -261,24 +274,28 @@ class WordRankRatio(Feature):
 
 class LMFillMaskRatio(Feature):
 
-    def __init__(self):
-        super().__init__()
-        self.model = transformers.AutoModelWithLMHead.from_pretrained('lordtt13/COVID-SciBERT')
-        self.tokenizer = transformers.AutoTokenizer.from_pretrained('lordtt13/COVID-SciBERT')
+    def __init__(self, stage="train", target_ratio=0.7):
+        super().__init__(stage, target_ratio)
+        if stage == "train":
+            self.model = transformers.AutoModelWithLMHead.from_pretrained('lordtt13/COVID-SciBERT')
+            self.tokenizer = transformers.AutoTokenizer.from_pretrained('lordtt13/COVID-SciBERT')
 
     def calculate_ratio(self, simple_text, original_text):
         complex_feature = self.mask_sentence_prediction(original_text)
         simple_feature = self.mask_sentence_prediction(simple_text)
+        # print(f"Complex feature: {complex_feature}. Simple feature: {simple_feature}")
         if complex_feature != 0:
             value = simple_feature / complex_feature
         else:
             value = 1
-        return min(value, 2)
+        return round(value, 2)
 
     def mask_sentence_prediction(self, text, topk=50):
         # print("----------------------")
         sentence_tokens = [token[0] for token in self.tokenizer.backend_tokenizer.pre_tokenizer.pre_tokenize_str(text)]
         pos_tagging_sentence = pos_tag(sentence_tokens)
+        # print(pos_tag(sentence_tokens))
+        # print(len(pos_tagging_sentence))
         predictions = []
         for i, (word, pos) in enumerate(pos_tagging_sentence):
 
