@@ -29,7 +29,7 @@ class Experiment:
         self.experiment_path = self._create_experiment_id()
 
     def start(self):
-        logger.info(f"Init experiment. hparams: {self.hparams}. features:{self.features.keys()}")
+        #logger.info(f"Init experiment. hparams: {self.hparams}. features:{self.features.keys()}")
         seed_everything(self.hparams['seed'], workers=True)
 
         # Get the hyperparameters of the trainer and instantiate it

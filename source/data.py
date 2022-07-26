@@ -38,12 +38,12 @@ class SimplificationDataModule(LightningDataModule):
         self.stage = None
         self.model_name = model_name
         self.data_path = data_path
-        self.model_features = collections.OrderedDict(sorted(model_features.items()))
         self.max_seq_length = max_seq_length
         self.train_batch_size = train_batch_size
         self.eval_batch_size = eval_batch_size
         self.tokenizer = AutoTokenizer.from_pretrained(self.model_name, use_fast=True)
-
+        if model_features:
+            self.model_features = collections.OrderedDict(sorted(model_features.items()))
     def setup(self, stage: str = "fit"):
         """DataModule pipeline. Load data, add and store features and then tokenize text"""
 
@@ -62,7 +62,8 @@ class SimplificationDataModule(LightningDataModule):
 
                 logger.info(f"Features calculated previously. Loading preprocessed dataset at: {path}")
                 self.dataset["train"] = self._load_preprocessed_dataset(path)
-            else:
+
+            elif hasattr(self, "model_features"):
                 logger.info("Storing preprocessed dataset")
                 self._store_preprocessed_dataset()
 
@@ -104,7 +105,7 @@ class SimplificationDataModule(LightningDataModule):
             valid_data = pd.concat([valid_original_data, valid_simple_data], axis=1)
 
             path = self._get_path_from_features()
-            if self._exists_preprocessed_dataset(path):
+            if path and self._exists_preprocessed_dataset(path):
 
                 dataset_created = datasets.DatasetDict({
                     'valid': datasets.Dataset.from_pandas(valid_data)
@@ -150,6 +151,16 @@ class SimplificationDataModule(LightningDataModule):
     def _add_features(self):
         """ Calculating features in selected dataset"""
 
+        def _join_features_and_text(example):
+
+            if example.get('original_text_preprocessed'):
+                return {'original_text_preprocessed': 'simplify: ' +
+                                                  example['original_text_preprocessed'] +
+                                                  example['original_text']}
+            else:
+                return {'original_text_preprocessed': 'simplify: ' +
+                                                  example['original_text']}
+
         # Selecting split.
         for dataset_split in self.dataset.keys():
             logger.info(f"Calculating split: {dataset_split}")
@@ -157,17 +168,15 @@ class SimplificationDataModule(LightningDataModule):
             # Calculating each feature using map function of Hugging Face dataset calling get_ratio method.
             # dataset_split = "train", "valid" or "test".
             # **kwargs = {"target_ratio"=value}
-            for feature, kwargs in self.model_features.items():
-                logger.info(f"Calculating feature: {feature}")
-                self.dataset[dataset_split] = self.dataset[dataset_split]. \
-                    map(getattr(features, feature)(dataset_split, **kwargs).get_ratio)
-                logger.info(f"Feature: {feature} calculated.")
+            if hasattr(self, "model_features"):
+                for feature, kwargs in self.model_features.items():
+                    logger.info(f"Calculating feature: {feature}")
+                    self.dataset[dataset_split] = self.dataset[dataset_split]. \
+                        map(getattr(features, feature)(dataset_split, **kwargs).get_ratio)
+                    logger.info(f"Feature: {feature} calculated.")
 
         # Joining features values with the original text
-        self.dataset = self.dataset.map(lambda example: {'original_text_preprocessed':
-                                                             "simplify: " +
-                                                             example['original_text_preprocessed'] +
-                                                             example['original_text']})
+        self.dataset = self.dataset.map(_join_features_and_text)
 
         dataset_split = next(iter(self.dataset.keys()))
         logger.info(f"Example:{self.dataset[dataset_split][0]}")
@@ -229,7 +238,8 @@ class SimplificationDataModule(LightningDataModule):
         return batch
 
     def _exists_preprocessed_dataset(self, path):
-        return Path(path).exists()
+        if path:
+            return Path(path).exists()
 
     def _load_preprocessed_dataset(self, path):
         return Dataset.load_from_disk(path)
@@ -240,13 +250,15 @@ class SimplificationDataModule(LightningDataModule):
         self.dataset["train"].save_to_disk(path)
 
     def _get_path_from_features(self):
-        preprocessed_name = ""
-        for feature in self.model_features.keys():
-            name = ""
-            for word in re.findall('[A-Z][^A-Z]*', feature):
-                if word: name += word[0]
-            if not name: name = feature
-            preprocessed_name += name + "_"
-        preprocessed_name += str(len(self.model_features))
-        path = PREPROCESSED_DIR / self.data_path.name / preprocessed_name
-        return path
+
+        if hasattr(self, "model_features"):
+            preprocessed_name = ""
+            for feature in self.model_features.keys():
+                name = ""
+                for word in re.findall('[A-Z][^A-Z]*', feature):
+                    if word: name += word[0]
+                if not name: name = feature
+                preprocessed_name += name + "_"
+            preprocessed_name += str(len(self.model_features))
+            path = PREPROCESSED_DIR / self.data_path.name / preprocessed_name
+            return path
