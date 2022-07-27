@@ -14,10 +14,11 @@ from source.experiments import Experiment
 def evaluate(experiment: Experiment,
              dataset: Path,
              features: Dict,
+             split: str,
              metrics : bool = True):
-    dm = experiment.create_and_setup_data_module(dataset, features, "test")
+    dm = experiment.create_and_setup_data_module(dataset, features, "test", split)
     trainer = experiment.create_trainer()
     model = experiment.load_best_model()
     trainer.test(model, datamodule=dm)
     if metrics:
-        return experiment.get_metrics(model, dm)
+        return experiment.get_metrics(model, dm, split)

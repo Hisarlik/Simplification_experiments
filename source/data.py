@@ -1,4 +1,4 @@
-from typing import Dict
+from typing import Dict, Optional
 from pathlib import Path
 import re
 import collections
@@ -29,13 +29,16 @@ class SimplificationDataModule(LightningDataModule):
             model_name: str,
             data_path: Path,
             model_features: Dict,
+            split: Optional[str],
             max_seq_length: int = 256,
             train_batch_size: int = 8,
-            eval_batch_size: int = 8):
+            eval_batch_size: int = 8,
+            ):
 
         super().__init__()
         self.dataset = None
         self.stage = None
+        self.split = split
         self.model_name = model_name
         self.data_path = data_path
         self.max_seq_length = max_seq_length
@@ -87,7 +90,10 @@ class SimplificationDataModule(LightningDataModule):
         return DataLoader(self.dataset["valid"], batch_size=self.eval_batch_size, num_workers=1)
 
     def test_dataloader(self):
-        return DataLoader(self.dataset["test"], batch_size=self.eval_batch_size, num_workers=1)
+        if self.split == "validation":
+            return DataLoader(self.dataset["valid"], batch_size=self.eval_batch_size, num_workers=1)
+        else:
+            return DataLoader(self.dataset["test"], batch_size=self.eval_batch_size, num_workers=1)
 
     def load_data(self):
         """Loading dataset into Hugging Face DatasetDict. simple validation data can included multiple files."""
@@ -126,6 +132,15 @@ class SimplificationDataModule(LightningDataModule):
                     'train': datasets.Dataset.from_pandas(train_data),
                     'valid': datasets.Dataset.from_pandas(valid_data)
                 })
+        elif self.stage == "test" and self.split == "validation":
+            test_original_path = Path(self.data_path / "validation" / "original")
+            test_original_data = pd.concat([pd.read_csv(item, names=["original_text"], sep="\t")
+                                        for item in Path(test_original_path).glob("*")], axis=1)
+
+            dataset_created = datasets.DatasetDict({
+                'valid': datasets.Dataset.from_pandas(test_original_data)
+        })
+
 
         else:  # self.stage == "test
             test_original_path = Path(self.data_path / "test" / "original")

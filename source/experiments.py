@@ -29,7 +29,9 @@ class Experiment:
         self.experiment_path = self._create_experiment_id()
 
     def start(self):
-        #logger.info(f"Init experiment. hparams: {self.hparams}. features:{self.features.keys()}")
+        logger.info(f"Init experiment. hparams: {self.hparams}.")
+        if self.features:
+            logger.info(f"features:{self.features.keys()}")
         seed_everything(self.hparams['seed'], workers=True)
 
         # Get the hyperparameters of the trainer and instantiate it
@@ -54,15 +56,17 @@ class Experiment:
     def create_and_setup_data_module(self,
                                      dataset: Path,
                                      features: Dict,
-                                     stage: Optional[str]) -> SimplificationDataModule:
+                                     stage: Optional[str],
+                                     split: Optional[str]) -> SimplificationDataModule:
         """Method to create a datamodule for training or testing the model"""
 
         dm = SimplificationDataModule(self.hparams.get("model_name"),
                                       dataset,
                                       features,
+                                      split,
                                       self.hparams.get("max_seq_length"),
                                       self.hparams.get("train_batch_size"),
-                                      self.hparams.get("valid_batch_size")
+                                      self.hparams.get("valid_batch_size"),
                                       )
         dm.setup(stage)
         return dm
@@ -98,7 +102,7 @@ class Experiment:
 
         return trainer_conf
 
-    def get_metrics(self, model: pl.LightningModule, dm: SimplificationDataModule):
+    def get_metrics(self, model: pl.LightningModule, dm: SimplificationDataModule, split:str):
 
         model_features = dm.get_features_and_values_string()
         dataset_path = dm.data_path
@@ -107,19 +111,19 @@ class Experiment:
         result_text_path = Path(self.experiment_path / \
                                 dataset_path.name / \
                                 model_features / \
-                                "test_results.txt")
+                                f"{split}_results.txt")
 
-        if predictions:
-            storage.save_text_file(result_text_path, predictions)
+        # if predictions:
+        #     storage.save_text_file(result_text_path, predictions)
 
         original_sents = []
         simple_sents = []
 
-        for test_file in Path(dataset_path).glob("*.test.complex*"):
-            original_sents = storage.load_file(test_file)
+        for file in Path(dataset_path/split/"original").glob("*"):
+            original_sents = storage.load_file(file)
 
-        for test_file in Path(dataset_path).glob("*.test.simple*"):
-            test_text = storage.load_file(test_file)
+        for file in Path(dataset_path/split/"simple").glob("*"):
+            test_text = storage.load_file(file)
             simple_sents.append(test_text)
 
         score = corpus_sari(original_sents, predictions, simple_sents)
@@ -130,12 +134,12 @@ class Experiment:
         result_text_path = Path(self.experiment_path / \
                                 dataset_path.name / \
                                 model_features / \
-                                "test_results.txt")
+                                f"{split}_results.txt")
 
         result_metrics_path = Path(self.experiment_path / \
                                    dataset_path.name / \
                                    model_features / \
-                                   "metrics.txt")
+                                   f"{split}_metrics.txt")
 
         if predictions:
             storage.save_text_file(result_text_path, predictions)
