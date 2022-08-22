@@ -59,9 +59,10 @@ class Feature(FeatureAbstract):
 
         elif self.split == "valid" or self.split == "test":
             result_ratio = self.target_ratio
+            kwargs['original_text_preprocessed'] += f'{self.name}_{result_ratio} '
         else:
             raise ValueError("stage value not supported")
-        kwargs['original_text_preprocessed'] += f'{self.name}_{result_ratio} '
+
         return kwargs
 
     @property

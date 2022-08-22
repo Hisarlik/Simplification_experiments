@@ -25,3 +25,7 @@ SIMPLETEXT_RUN = DATASETS_DIR / "simpleText_run"
 
 ##### DEVICE #####
 DEVICE = "cuda" if torch.cuda.is_available() else "cpu"
+
+
+##### FEATURES #####
+FEATURES = ["WordLengthRatio","CharLengthRatio","LevenshteinRatio","DependencyTreeDepthRatio","LMFillMaskRatio"]

@@ -22,7 +22,7 @@ if __name__ == "__main__":
     # Select experiment_id value or put None to evaluate last trained model.
     experiment_id = None
     dataset = TURKCORPUS_DATASET
-    split = "test"
+    split = "validation"
 
     experiment = ExperimentManager.load_experiment(experiment_id)
     evaluate(experiment, dataset, features, split)

@@ -5,7 +5,7 @@ sys.path.append(str(Path(__file__).resolve().parent.parent))
 # -- end fix path --
 from typing import Dict
 from source.experiments import ExperimentManager
-from conf import WIKILARGE_DATASET, TURKCORPUS_DATASET, DEVICE
+from conf import WIKILARGE_DATASET, TURKCORPUS_DATASET, ASSET_DATASET, DEVICE
 
 
 def main(model_hyperparameters: Dict,
