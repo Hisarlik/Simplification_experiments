@@ -2,10 +2,12 @@
 from pathlib import Path
 import sys
 
+from source.utils import logging_module
+
 sys.path.append(str(Path(__file__).resolve().parent.parent))
 # -- end fix path --
 
-from conf import WIKILARGE_CHUNK_DATASET, TURKCORPUS_DATASET, WIKILARGE_DATASET, SIMPLETEXT_DATASET
+from conf import WIKILARGE_CHUNK_DATASET, TURKCORPUS_DATASET, WIKILARGE_DATASET, SIMPLETEXT_DATASET, ASSET_DATASET
 from source.experiments import ExperimentManager
 from source.evaluation import evaluate
 
@@ -17,10 +19,10 @@ if __name__ == "__main__":
         DependencyTreeDepthRatio=dict(target_ratio=0.95),
         LMFillMaskRatio=dict(target_ratio=0.75)
     )
-    #Select experiment_id value or put None to evaluate last trained model.
+    # Select experiment_id value or put None to evaluate last trained model.
     experiment_id = None
     dataset = TURKCORPUS_DATASET
-    split = "validation"
+    split = "test"
 
     experiment = ExperimentManager.load_experiment(experiment_id)
     evaluate(experiment, dataset, features, split)

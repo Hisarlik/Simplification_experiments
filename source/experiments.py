@@ -57,7 +57,7 @@ class Experiment:
                                      dataset: Path,
                                      features: Dict,
                                      stage: Optional[str],
-                                     split: Optional[str]) -> SimplificationDataModule:
+                                     split: Optional[str] = "validation") -> SimplificationDataModule:
         """Method to create a datamodule for training or testing the model"""
 
         dm = SimplificationDataModule(self.hparams.get("model_name"),

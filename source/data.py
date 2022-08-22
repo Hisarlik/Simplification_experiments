@@ -2,7 +2,7 @@ from typing import Dict, Optional
 from pathlib import Path
 import re
 import collections
-
+import csv
 import datasets
 import pandas as pd
 from datasets import Dataset
@@ -101,11 +101,13 @@ class SimplificationDataModule(LightningDataModule):
         if self.stage == "fit":
 
             valid_original_path = Path(self.data_path / "validation" / "original")
-            valid_original_data = pd.concat([pd.read_csv(item, names=["original_text"], sep="\t")
+            valid_original_data = pd.concat([pd.read_csv(item, names=["original_text"], sep="\t",
+                                                         quoting=csv.QUOTE_NONE)
                                            for item in Path(valid_original_path).glob("*")], axis=1)
 
             valid_simple_path = Path(self.data_path / "validation" / "simple")
-            valid_simple_data = pd.concat([pd.read_csv(item, names=[f"simple_text_valid_{i}"], sep="\t")
+            valid_simple_data = pd.concat([pd.read_csv(item, names=[f"simple_text_valid_{i}"], sep="\t",
+                                                       quoting=csv.QUOTE_NONE)
                                            for i,item in enumerate(Path(valid_simple_path).glob("*"))], axis=1)
 
             valid_data = pd.concat([valid_original_data, valid_simple_data], axis=1)
@@ -119,11 +121,13 @@ class SimplificationDataModule(LightningDataModule):
             else:
                 train_original_path = Path(self.data_path / "train" / "original")
 
-                train_original_data = pd.concat([pd.read_csv(item, names=["original_text"], sep="\t")
+                train_original_data = pd.concat([pd.read_csv(item, names=["original_text"], sep="\t",
+                                                             quoting=csv.QUOTE_NONE)
                                                  for item in Path(train_original_path).glob("*")], axis=1)
 
                 train_simple_path = Path(self.data_path / "train" / "simple")
-                train_simple_data = pd.concat([pd.read_csv(item, names=[f"simple_text"], sep="\t")
+                train_simple_data = pd.concat([pd.read_csv(item, names=[f"simple_text"], sep="\t",
+                                                           quoting=csv.QUOTE_NONE)
                                                  for item in Path(train_simple_path).glob("*")], axis=1)
 
                 train_data = pd.concat([train_original_data, train_simple_data], axis=1)
@@ -144,7 +148,7 @@ class SimplificationDataModule(LightningDataModule):
 
         else:  # self.stage == "test
             test_original_path = Path(self.data_path / "test" / "original")
-            test_original_data = pd.concat([pd.read_csv(item, names=["original_text"], sep="\t")
+            test_original_data = pd.concat([pd.read_csv(item, names=["original_text"], sep="\t", quoting=csv.QUOTE_NONE)
                                            for item in Path(test_original_path).glob("*")], axis=1)
 
             dataset_created = datasets.DatasetDict({
