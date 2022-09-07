@@ -6,7 +6,7 @@ sys.path.append(str(Path(__file__).resolve().parent.parent))
 from typing import Dict
 from source.experiments import ExperimentManager
 from conf import WIKILARGE_DATASET, TURKCORPUS_DATASET, ASSET_DATASET, DEVICE
-
+from source.evaluation import evaluate
 
 def main(model_hyperparameters: Dict,
          features: Dict
@@ -28,19 +28,21 @@ def main(model_hyperparameters: Dict,
 
 if __name__ == "__main__":
 
-    features = dict(
+    features_6 = dict(
         WordLengthRatio=dict(target_ratio=0.75),
         CharLengthRatio=dict(target_ratio=0.6),
         LevenshteinRatio=dict(target_ratio=0.6),
         DependencyTreeDepthRatio=dict(target_ratio=0.95),
+        WordRankRatio = dict(target_ratio=0.8),
         LMFillMaskRatio=dict(target_ratio=0.75)
     )
 
 
+
     config = dict(
         model_name='t5-small',
-        dataset_path=TURKCORPUS_DATASET,
-        number_epochs=1,
+        dataset_path=WIKILARGE_DATASET,
+        number_epochs=10,
         max_seq_length=256,
         learning_rate=3e-4,
         weight_decay=0.1,
@@ -60,9 +62,10 @@ if __name__ == "__main__":
         valid_sample_size=1,
         device=DEVICE                   # "cuda" or "cpu"
     )
-    print(DEVICE)
-    print("Sin features")
-    main(config, None)
-    print("Con features")
-    main(config, features)
+
+    print("Con features", len(features_6.keys()))
+    main(config, features_6)
+
+
+
 

@@ -28,4 +28,10 @@ DEVICE = "cuda" if torch.cuda.is_available() else "cpu"
 
 
 ##### FEATURES #####
-FEATURES = ["WordLengthRatio","CharLengthRatio","LevenshteinRatio","DependencyTreeDepthRatio","LMFillMaskRatio"]
+FEATURES = ["WordLengthRatio",
+            "CharLengthRatio",
+            "LevenshteinRatio",
+            "DependencyTreeDepthRatio",
+            "WordRankRatio",
+            "LMFillMaskRatio"
+            ]

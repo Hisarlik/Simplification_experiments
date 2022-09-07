@@ -154,13 +154,14 @@ class SimplificationDataModule(LightningDataModule):
         return dataset_created
 
     def get_features_and_values_string(self):
-        string_value = ""
-        for feature, target in self.model_features.items():
-            name = ""
-            for word in re.findall('[A-Z][^A-Z]*', feature):
-                if word: name += word[0]
-            if not name: name = feature
-            string_value += name + "_" + str(target['target_ratio'])
+        string_value = self.model_name + "_"
+        if hasattr(self, "model_features"):
+            for feature, target in self.model_features.items():
+                name = ""
+                for word in re.findall('[A-Z][^A-Z]*', feature):
+                    if word: name += word[0]
+                if not name: name = feature
+                string_value += name + "_" + str(target['target_ratio'])
         return string_value
 
     def get_features_names(self):

@@ -284,7 +284,6 @@ class LMFillMaskRatio(Feature):
     def calculate_ratio(self, simple_text, original_text):
         complex_feature = self.mask_sentence_prediction(original_text)
         simple_feature = self.mask_sentence_prediction(simple_text)
-        # print(f"Complex feature: {complex_feature}. Simple feature: {simple_feature}")
         if complex_feature != 0:
             value = simple_feature / complex_feature
         else:
@@ -292,20 +291,16 @@ class LMFillMaskRatio(Feature):
         return round(value, 2)
 
     def mask_sentence_prediction(self, text, topk=50):
-        # print("----------------------")
+
         sentence_tokens = [token[0] for token in self.tokenizer.backend_tokenizer.pre_tokenizer.pre_tokenize_str(text)]
         pos_tagging_sentence = pos_tag(sentence_tokens)
-        # print(pos_tag(sentence_tokens))
-        # print(len(pos_tagging_sentence))
         predictions = []
         for i, (word, pos) in enumerate(pos_tagging_sentence):
 
-            # print(f"i:{i}, word:{word}, pos:{pos}")
             if pos in ['NNS', 'NN', 'VBP', 'VBG', 'VBD']:
                 sentence_masked = sentence_tokens.copy()
                 sentence_masked[i] = "[MASK]"
                 sentence_final = " ".join(sentence_masked)
-                # print(sentence_final)
                 inputs = self.tokenizer(sentence_final, return_tensors="pt")
                 token_logits = self.model(**inputs).logits
                 mask_token_index = torch.where(inputs.input_ids == self.tokenizer.mask_token_id)[1]
