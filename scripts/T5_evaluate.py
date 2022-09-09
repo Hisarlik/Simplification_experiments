@@ -1,9 +1,6 @@
 # -- fix path --
 from pathlib import Path
 import sys
-
-from source.utils import logging_module
-
 sys.path.append(str(Path(__file__).resolve().parent.parent))
 # -- end fix path --
 
@@ -21,7 +18,7 @@ if __name__ == "__main__":
     )
     # Select experiment_id value or put None to evaluate last trained model.
     experiment_id = None
-    dataset = TURKCORPUS_DATASET
+    dataset = SIMPLETEXT_DATASET
     split = "validation"
 
     experiment = ExperimentManager.load_experiment(experiment_id)
