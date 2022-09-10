@@ -22,4 +22,5 @@ if __name__ == "__main__":
     split = "validation"
 
     experiment = ExperimentManager.load_experiment(experiment_id)
+    #experiment.experiment_path = Path("/home/antonio/PycharmProjects/Simplification_experiments/resources/experiments/20220907200906")
     evaluate(experiment, dataset, features, split)

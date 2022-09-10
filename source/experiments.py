@@ -93,7 +93,7 @@ class Experiment:
         trainer_conf = dict(
             accelerator=self.hparams.get("accelerator", "gpu"),
             accumulate_grad_batches=1,
-            gpus=torch.cuda.device_count(),
+            devices=1,
             max_epochs=self.hparams.get("number_epochs", 1),
             precision=16 if self.hparams.get("fp_16") else 32,
             callbacks=[LoggingCallback(), checkpoint_callback, LitProgressBar()],
@@ -107,14 +107,6 @@ class Experiment:
         model_features = dm.get_features_and_values_string()
         dataset_path = dm.data_path
         predictions = model.predictions
-
-        result_text_path = Path(self.experiment_path / \
-                                dataset_path.name / \
-                                model_features / \
-                                f"{split}_results.txt")
-
-        # if predictions:
-        #     storage.save_text_file(result_text_path, predictions)
 
         original_sents = []
         simple_sents = []
