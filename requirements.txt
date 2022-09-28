@@ -18,3 +18,4 @@ gensim
 optuna
 git+https://github.com/feralvam/easse.git
 tensorflow
+sentence-transformers
