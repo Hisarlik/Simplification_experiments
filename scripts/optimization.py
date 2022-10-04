@@ -18,12 +18,12 @@ logger = logging_module.get_logger(__name__)
 
 def objective(trial: optuna.trial.Trial, experiment_id:Union[str, None], dataset: Path) -> float:
     features = dict(
-        WordLengthRatio=dict(target_ratio=trial.suggest_float('WordRatio', 0.6, 0.8, step=0.05)),
-        CharLengthRatio=dict(target_ratio=trial.suggest_float('CharRatio', 0.6, 0.8, step=0.05)),
-        LevenshteinRatio=dict(target_ratio=trial.suggest_float('LevenshteinRatio', 0.5, 0.7, step=0.05)),
-        DependencyTreeDepthRatio=dict(target_ratio=trial.suggest_float('DepthTreeRatio', 0.6, 0.95, step=0.05)),
-        WordRankRatio=dict(target_ratio=trial.suggest_float('WordRankRatio', 0.3, 0.9, step=0.05)),
-        LMFillMaskRatio=dict(target_ratio=trial.suggest_float('LMFillMaskRatio', 0.3, 0.9, step=0.05)))
+        WordLengthRatio=dict(target_ratio=trial.suggest_float('WordRatio', 0.7, 1.3, step=0.05)),
+        CharLengthRatio=dict(target_ratio=trial.suggest_float('CharRatio', 0.7, 1.3, step=0.05)),
+        LevenshteinRatio=dict(target_ratio=trial.suggest_float('LevenshteinRatio', 0.6, 1., step=0.05)),
+        DependencyTreeDepthRatio=dict(target_ratio=trial.suggest_float('DepthTreeRatio', 0.8, 1.5, step=0.05)),
+        WordRankRatio=dict(target_ratio=trial.suggest_float('WordRankRatio', 0.5, 1, step=0.05)),
+        LMFillMaskRatio=dict(target_ratio=trial.suggest_float('LMFillMaskRatio', 0.7, 1.3, step=0.05)))
 
     experiment = ExperimentManager.load_experiment(experiment_id)
     #experiment.experiment_path = Path("/home/antonio/PycharmProjects/Simplification_experiments/resources/experiments/20220907200906")
@@ -36,8 +36,8 @@ if __name__ == '__main__':
     # Change experiment_id value or None to evaluate last trained model.
     # Select dataset for finetuning it.
     expe_id = None
-    dataset = SIMPLETEXT_DATASET
-    trials = 50
+    dataset = TURKCORPUS_DATASET
+    trials = 200
 
 
     func = lambda trial: objective(trial, expe_id, dataset)

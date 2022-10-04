@@ -98,6 +98,7 @@ class Experiment:
             precision=16 if self.hparams.get("fp_16") else 32,
             callbacks=[LoggingCallback(), checkpoint_callback, LitProgressBar()],
             num_sanity_val_steps=0,
+            deterministic=True
         )
 
         return trainer_conf

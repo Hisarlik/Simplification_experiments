@@ -29,12 +29,12 @@ def main(model_hyperparameters: Dict,
 if __name__ == "__main__":
 
     features_6 = dict(
-        WordLengthRatio=dict(target_ratio=0.75),
-        CharLengthRatio=dict(target_ratio=0.6),
-        LevenshteinRatio=dict(target_ratio=0.6),
-        DependencyTreeDepthRatio=dict(target_ratio=0.95),
-        WordRankRatio = dict(target_ratio=0.8),
-        LMFillMaskRatio=dict(target_ratio=0.75)
+        WordLengthRatio=dict(target_ratio=1.1),
+        CharLengthRatio=dict(target_ratio=0.95),
+        LevenshteinRatio=dict(target_ratio=0.75),
+        DependencyTreeDepthRatio=dict(target_ratio=1.3),
+        WordRankRatio = dict(target_ratio=0.55),
+        LMFillMaskRatio=dict(target_ratio=0.8500000000000001)
     )
 
 
@@ -48,15 +48,15 @@ if __name__ == "__main__":
         weight_decay=0.1,
         adam_epsilon=1e-8,
         warmup_steps=5,
-        train_batch_size=6,
-        valid_batch_size=6,
+        train_batch_size=12,
+        valid_batch_size=12,
         custom_loss=False,
         gradient_accumulation_steps=1,
         accelerator="gpu",
         fp_16=False,
         opt_level='O1',
         max_grad_norm=1.0,
-        seed=42,
+        seed=22,
         nb_sanity_val_steps=0,
         train_sample_size=1,
         valid_sample_size=1,
@@ -65,6 +65,8 @@ if __name__ == "__main__":
 
     print("Con features", len(features_6.keys()))
     main(config, features_6)
+
+
 
 
 
