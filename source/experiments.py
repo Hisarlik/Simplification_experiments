@@ -8,7 +8,7 @@ import torch
 import pytorch_lightning as pl
 from pytorch_lightning import seed_everything
 from easse.sari import corpus_sari
-
+from easse.report import get_all_scores
 from conf import OUTPUT_DIR
 from source.utils import logging_module, storage
 from source.data import SimplificationDataModule
@@ -118,9 +118,9 @@ class Experiment:
         for file in Path(dataset_path/split/"simple").glob("*"):
             test_text = storage.load_file(file)
             simple_sents.append(test_text)
-
+        all_scores = get_all_scores(original_sents, predictions, simple_sents, lowercase=True)
         score = corpus_sari(original_sents, predictions, simple_sents)
-        result_score = [f"Test SARI: {score}"]
+        result_score = [f"Test SARI: {all_scores['SARI']}", f"Test FKGL: {all_scores['FKGL']}"]
 
         logger.info(result_score)
 
