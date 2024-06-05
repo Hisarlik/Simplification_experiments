@@ -73,8 +73,10 @@ class Experiment:
 
     def load_best_model(self):
         checkpoints = self.experiment_path.glob('checkpoint*')
-        best_checkpoint = str(sorted(checkpoints, reverse=True)[0])
-        model = T5SimplificationModel.load_from_checkpoint(best_checkpoint)
+        for chec in checkpoints:
+            print(chec)
+        #best_checkpoint = str(sorted(checkpoints, reverse=True)[0])
+        model = T5SimplificationModel.load_from_checkpoint(chec)
         return model
 
     def _create_experiment_id(self) -> Path:

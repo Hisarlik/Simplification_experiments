@@ -301,12 +301,13 @@ class SimplificationDataModule(LightningDataModule):
             return Path(path).exists()
 
     def _load_preprocessed_dataset(self, path):
-        return Dataset.load_from_disk(path)
+        return Dataset.load_from_disk(str(path))
 
     def _store_preprocessed_dataset(self):
 
         path = self._get_path_from_features()
-        self.dataset["train"].save_to_disk(path)
+        print(path)
+        self.dataset["train"].save_to_disk(str(path))
 
     def _get_path_from_features(self):
 

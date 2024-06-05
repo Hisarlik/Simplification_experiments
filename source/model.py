@@ -55,7 +55,7 @@ class T5SimplificationModel(pl.LightningModule):
             train_loader = self.trainer.datamodule.train_dataloader()
 
             # Calculate total steps
-            tb_size = self.hparams.train_batch_size * max(1, self.trainer.gpus)
+            tb_size = self.hparams.train_batch_size * 1
             ab_size = tb_size * self.trainer.accumulate_grad_batches
             self.total_steps = int((len(train_loader.dataset) / ab_size) * float(self.trainer.max_epochs))
             logger.debug(f"Total steps: {self.total_steps}")
@@ -124,6 +124,7 @@ class T5SimplificationModel(pl.LightningModule):
         optimizer = AdamW(optimizer_grouped_parameters,
                           lr=self.hparams.learning_rate,
                           eps=self.hparams.adam_epsilon)
+
 
         scheduler = get_linear_schedule_with_warmup(
             optimizer,

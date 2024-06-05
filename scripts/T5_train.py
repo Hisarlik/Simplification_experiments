@@ -5,7 +5,7 @@ sys.path.append(str(Path(__file__).resolve().parent.parent))
 # -- end fix path --
 from typing import Dict
 from source.experiments import ExperimentManager
-from conf import WIKILARGE_DATASET, TURKCORPUS_DATASET, ASSET_DATASET, DEVICE
+from conf import WIKILARGE_DATASET, TURKCORPUS_DATASET, ASSET_DATASET, DEVICE, WIKILARGE_CHUNK_DATASET
 from source.evaluation import evaluate
 
 def main(model_hyperparameters: Dict,
@@ -40,16 +40,16 @@ if __name__ == "__main__":
 
 
     config = dict(
-        model_name='t5-small',
-        dataset_path=WIKILARGE_DATASET,
-        number_epochs=10,
+        model_name='google/mt5-small',
+        dataset_path=WIKILARGE_CHUNK_DATASET,
+        number_epochs=1,
         max_seq_length=256,
         learning_rate=3e-4,
         weight_decay=0.1,
         adam_epsilon=1e-8,
         warmup_steps=5,
-        train_batch_size=12,
-        valid_batch_size=12,
+        train_batch_size=6,
+        valid_batch_size=6,
         custom_loss=False,
         gradient_accumulation_steps=1,
         accelerator="gpu",
